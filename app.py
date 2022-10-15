@@ -14,7 +14,7 @@ st.set_option('deprecation.showfileUploaderEncoding', False)
 
 @st.cache(allow_output_mutation=True)
 def load_model():
-    model = tf.keras.models.load_model(full_path + '\my_model.hdf5', custom_objects={'KerasLayer': hub.KerasLayer})
+    model = tf.keras.models.load_model(full_path + '/my_model.hdf5', custom_objects={'KerasLayer': hub.KerasLayer})
     return model
 
 
