@@ -7,7 +7,7 @@ After getting a 97% acc with the pre-trained model, Using streamlit, I developed
 
 ## Results
 
-You may now try it for yourself using the following [link.]( https://mostafanabilll-cats-and-dogs-app-x9ozdm.streamlitapp.com/)
+##### You may now try it for yourself using the following [link.]( https://mostafanabilll-cats-and-dogs-app-x9ozdm.streamlitapp.com/)
 ![alt text](https://user-images.githubusercontent.com/60539423/195988690-1bd9fcd0-073f-41dc-a170-edf9a606cd80.png)
 
 
