@@ -7,8 +7,8 @@ import os
 
 absolute_path = os.path.dirname(__file__)
 
-full_path = os.path.join(absolute_path)
 
+full_path = os.path.join(absolute_path, "Notebook")
 
 st.set_option('deprecation.showfileUploaderEncoding',False)
 @st.cache(allow_output_mutation=True)
@@ -19,7 +19,7 @@ def load_model():
 
 model = load_model()
 st.title("""
-     Dogs and Cats Classification
+      Dogs and Cats Classification
 """)
 st.subheader("Choose a Image with Cat or Dog")
 
