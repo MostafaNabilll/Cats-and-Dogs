@@ -24,7 +24,7 @@ st.title("""
 """)
 st.subheader("Choose a Image with Cat or Dog")
 
-file = st.file_uploader("Upload your Image", type=['jpg', 'png'])
+file = st.file_uploader("Upload your Image", type=['jpg', 'png', 'jpeg'])
 
 
 def import_and_predict(image_data, model):
