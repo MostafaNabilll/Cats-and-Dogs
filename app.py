@@ -5,44 +5,83 @@ from PIL import Image, ImageOps
 import numpy as np
 import os
 
-absolute_path = os.path.dirname(__file__)
-
+# Get absolute paths
+absolute_path = os.getcwd()
 full_path = os.path.join(absolute_path, "Notebook")
 
-st.set_option('deprecation.showfileUploaderEncoding', False)
+# Sidebar configuration
+st.sidebar.title("🐶🐱 Cats & Dogs Classifier")
+st.sidebar.markdown("""
+    This application uses a pre-trained deep learning model to classify images as either a **cat** or a **dog**. 
+    Upload an image of a cat or a dog, and see what the model predicts!
+""")
 
-
-@st.cache(allow_output_mutation=True)
+# Load Model
+@st.cache_resource
 def load_model():
-    model = tf.keras.models.load_model(full_path + '/my_model.hdf5', custom_objects={'KerasLayer': hub.KerasLayer})
+    hub_url = "https://tfhub.dev/google/imagenet/mobilenet_v2_100_224/feature_vector/5"  # Replace with the correct URL
+    feature_extractor_layer = hub.KerasLayer(hub_url, input_shape=(224, 224, 3), trainable=False)
+    model = tf.keras.Sequential([
+        feature_extractor_layer,
+        tf.keras.layers.Flatten(),
+        tf.keras.layers.Dense(128, activation='relu'),
+        tf.keras.layers.Dense(2, activation='softmax')
+    ])
+    try:
+        model.load_weights(full_path + '/my_model.hdf5')
+    except Exception as e:
+        st.sidebar.error(f"⚠️ Error loading model weights: {str(e)}")
+
     return model
 
+model = None
+try:
+    model = load_model()
+except Exception as e:
+    st.sidebar.warning("⚠️ Model failed to load properly due to compatibility issues. Predictions are currently unavailable.")
 
-model = load_model()
-st.title("""
-      Dogs and Cats Classification
-""")
-st.subheader("Choose a Image with Cat or Dog")
+# Page Title
+st.title("🐾 Dogs and Cats Image Classification 🐾")
 
-file = st.file_uploader("Upload your Image", type=['jpg', 'png', 'jpeg'])
+# Improved layout with columns
+col1, col2 = st.columns(2)
 
+# Upload Image section
+with col1:
+    st.header("📤 Upload Your Image")
+    file = st.file_uploader("Choose a file", type=['jpg', 'jpeg', 'png'])
 
+# Function to preprocess and predict the image
 def import_and_predict(image_data, model):
+    if model is None:
+        return None
     size = (224, 224)
     image = ImageOps.fit(image_data, size, Image.ANTIALIAS)
     img = np.array(image)
-    img_reshape = img[np.newaxis]
-    img_scale = img_reshape / 255
+    img = img.astype(np.float32)
+    img_reshape = img[np.newaxis, ...]
+    img_scale = img_reshape / 255.0
     prediction = model.predict(img_scale)
     return prediction
 
-
-st.markdown("<h4 style='text-align:left; color:gray'> Prediction </h4>", unsafe_allow_html=True)
-
+# Show Image and Prediction Result
 if file is not None:
-    image = Image.open(file)
-    st.image(image, width=None)
-    predictions = import_and_predict(image, model)
-    class_names = ["Cat", 'Dog']
-    string = "What you see here is a " + class_names[np.argmax(predictions)]
-    st.success(string)
+    with col1:
+        st.image(file, caption='Uploaded Image', use_column_width=True)
+
+    with col2:
+        st.header("🧠 Model Prediction")
+        if model is None:
+            st.warning("The model is currently unavailable due to compatibility issues. We are working on a solution.")
+        else:
+            try:
+                with st.spinner("Predicting..."):
+                    image = Image.open(file)
+                    predictions = import_and_predict(image, model)
+                    class_names = ["Cat", "Dog"]
+                    result = class_names[np.argmax(predictions)]
+                    string = f"What you see here is a **{result}**"
+                    st.success(string)
+            except Exception as e:
+                st.error(f"An error occurred during prediction: {str(e)}")
+
